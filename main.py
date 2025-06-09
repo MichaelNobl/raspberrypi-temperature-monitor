@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 from RPLCD.i2c import CharLCD
 from weather_data import WeatherData
-from constants import THRESHOLD_HOT, THRESHOLD_COLD, TOLERANCE, WEATHER_UPDATE_INTERVAL, DISPLAY_ROTATE_INTERVAL, DISPLAY_WIDTH, ZONE_INFO, CITY, COUNTRY
+from constants import THRESHOLD_HOT, THRESHOLD_COLD, TOLERANCE, WEATHER_UPDATE_INTERVAL, DISPLAY_ROTATE_INTERVAL, \
+    DISPLAY_WIDTH, ZONE_INFO, CITY, COUNTRY
 from display_mode import DisplayMode
 from datetime import datetime
 from zoneinfo import ZoneInfo
@@ -11,6 +12,7 @@ import urllib.parse
 import requests
 import time
 import os
+
 
 class TemperatureMonitor:
     def __init__(self, api_key, pushover_token, pushover_user):
@@ -42,37 +44,39 @@ class TemperatureMonitor:
             print(f"API error: {e}")
             return None
 
-    def get_local_time_str(self):
+    @staticmethod
+    def get_local_time_str():
         now = datetime.now(ZoneInfo(ZONE_INFO))
         return now.strftime("%H:%M:%S")
 
-    def get_local_date_str(self):
+    @staticmethod
+    def get_local_date_str():
         now = datetime.now(ZoneInfo(ZONE_INFO))
         return now.strftime("%d.%m.%Y")
 
     def send_pushover(self, message):
         conn = http.client.HTTPSConnection("api.pushover.net:443")
         conn.request("POST", "/1/messages.json",
-            urllib.parse.urlencode({
-                "token": self.pushover_token,
-                "user": self.pushover_user,
-                "message": message,
-                "priority": 1
-            }), {
-                "Content-type": "application/x-www-form-urlencoded"
-            }
-        )
+                     urllib.parse.urlencode({
+                         "token": self.pushover_token,
+                         "user": self.pushover_user,
+                         "message": message,
+                         "priority": 1
+                     }), {
+                         "Content-type": "application/x-www-form-urlencoded"
+                     }
+                     )
         conn.getresponse()
 
     def send_pushover_hot(self, temp):
-        time_str = self.get_local_time_str()
-        date_str = self.get_local_date_str()
+        time_str = TemperatureMonitor.get_local_time_str()
+        date_str = TemperatureMonitor.get_local_date_str()
         message = f"🔥 Hot outside: {temp:.1f}°C\n{date_str} {time_str}"
         self.send_pushover(message)
 
     def send_pushover_cold(self, temp):
-        time_str = self.get_local_time_str()
-        date_str = self.get_local_date_str()
+        time_str = TemperatureMonitor.get_local_time_str()
+        date_str = TemperatureMonitor.get_local_date_str()
         message = f"❄️ Cold outside: {temp:.1f}°C\n{date_str} {time_str}"
         self.send_pushover(message)
 
@@ -90,7 +94,7 @@ class TemperatureMonitor:
                 start = self.scroll_index
                 end = start + DISPLAY_WIDTH
                 self.lcd.write_string(scroll_text[start:end].ljust(DISPLAY_WIDTH))
-        
+
                 self.scroll_index = (self.scroll_index + 1) % len(scroll_text)
         elif self.display_mode == DisplayMode.TEMP:
             self.lcd.write_string(f"Temp: {weather.temp:.1f}C".ljust(DISPLAY_WIDTH))
@@ -98,7 +102,6 @@ class TemperatureMonitor:
             self.lcd.write_string(f"Feels: {weather.feels_like:.1f}C".ljust(DISPLAY_WIDTH))
         elif self.display_mode == DisplayMode.HUMIDITY:
             self.lcd.write_string(f"Humidity: {weather.humidity}%".ljust(DISPLAY_WIDTH))
-
 
     def run(self):
         self.lcd.clear()
@@ -111,11 +114,11 @@ class TemperatureMonitor:
                     weather = self.get_weather_temp()
                     if weather:
                         self.last_weather_data = weather
-                        if(weather.temp > THRESHOLD_HOT + TOLERANCE):
+                        if weather.temp > THRESHOLD_HOT + TOLERANCE:
                             if not self.alert_sent:
                                 self.send_pushover_hot(weather.temp)
                                 self.alert_sent = True
-                        elif(weather.temp < THRESHOLD_COLD - TOLERANCE):
+                        elif weather.temp < THRESHOLD_COLD - TOLERANCE:
                             if not self.alert_sent:
                                 self.send_pushover_cold(weather.temp)
                                 self.alert_sent = True
