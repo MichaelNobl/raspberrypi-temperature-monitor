@@ -33,6 +33,8 @@ A simple Raspberry Pi project that fetches local weather data from OpenWeatherMa
 
     ```bash
     python3 -m pip install -r requirements.txt
+    sudo apt update
+    sudo apt install python3-smbus i2c-tools
     ```
 
 3. Create a `.env` file in the project root with your API keys:
