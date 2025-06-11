@@ -1,3 +1,4 @@
 RPLCD
 requests
 python-dotenv
+smbus2
