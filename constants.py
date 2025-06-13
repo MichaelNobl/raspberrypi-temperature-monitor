@@ -1,9 +1,0 @@
-WEATHER_UPDATE_INTERVAL = 300  # seconds
-DISPLAY_ROTATE_INTERVAL = 10   # seconds
-DISPLAY_WIDTH = 16
-THRESHOLD_HOT = 30.0  # degrees Celsius
-THRESHOLD_COLD = 10.0  # degrees Celsius
-TOLERANCE = 0.5  # degrees Celsius
-ZONE_INFO = "Europe/Vienna"  # Timezone for local time
-CITY = "Pettneu am Arlberg"
-COUNTRY = "AT"
