@@ -5,15 +5,16 @@ from zoneinfo import ZoneInfo
 
 from RPLCD.i2c import CharLCD
 
-from src.monitoring.constants import WEATHER_UPDATE_INTERVAL, DISPLAY_ROTATE_INTERVAL, \
+from monitoring.constants import WEATHER_UPDATE_INTERVAL, DISPLAY_ROTATE_INTERVAL, \
     DISPLAY_WIDTH, ZONE_INFO
-from src.monitoring.display_mode import DisplayMode
-from src.weather.weather_constants import CITY, TOLERANCE, THRESHOLD_HOT, THRESHOLD_COLD
-from ..notifier.pushover_notifier import PushoverNotifier
-from ..notifier.telegram_notifier import TelegramNotifier
-from ..weather.weather_api import WeatherAPI
-from ..weather.weather_data import WeatherData
+from monitoring.display_mode import DisplayMode
 
+from weather.weather_constants import CITY, TOLERANCE, THRESHOLD_HOT, THRESHOLD_COLD
+from weather.weather_api import WeatherAPI
+from weather.weather_data import WeatherData
+
+from notifier.pushover_notifier import PushoverNotifier
+from notifier.telegram_notifier import TelegramNotifier
 
 class TemperatureMonitor:
     def __init__(self, weather_api: WeatherAPI, telegram_notifier: TelegramNotifier | None,

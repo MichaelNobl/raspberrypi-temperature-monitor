@@ -5,8 +5,8 @@ from dotenv import load_dotenv
 
 from monitoring.temperature_monitor import TemperatureMonitor
 from notifier.pushover_notifier import PushoverNotifier
-from src.notifier.telegram_notifier import TelegramNotifier
-from src.weather.weather_api import WeatherAPI
+from notifier.telegram_notifier import TelegramNotifier
+from weather.weather_api import WeatherAPI
 
 
 def main():

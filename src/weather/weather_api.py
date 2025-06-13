@@ -1,7 +1,7 @@
 import requests
 
-from weather_constants import CITY, COUNTRY
-from weather_data import WeatherData
+from weather.weather_constants import CITY, COUNTRY
+from weather.weather_data import WeatherData
 
 
 class WeatherAPI:
