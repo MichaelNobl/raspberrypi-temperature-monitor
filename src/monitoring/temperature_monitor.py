@@ -9,14 +9,17 @@ from src.monitoring.constants import WEATHER_UPDATE_INTERVAL, DISPLAY_ROTATE_INT
     DISPLAY_WIDTH, ZONE_INFO
 from src.monitoring.display_mode import DisplayMode
 from src.weather.weather_constants import CITY, TOLERANCE, THRESHOLD_HOT, THRESHOLD_COLD
-from ..notifications.pushover import PushoverNotifier
+from ..notifier.pushover_notifier import PushoverNotifier
+from ..notifier.telegram_notifier import TelegramNotifier
 from ..weather.weather_api import WeatherAPI
 from ..weather.weather_data import WeatherData
 
 
 class TemperatureMonitor:
-    def __init__(self, weather_api: WeatherAPI, pushover_notifier: PushoverNotifier):
+    def __init__(self, weather_api: WeatherAPI, telegram_notifier: TelegramNotifier | None,
+                 pushover_notifier: PushoverNotifier | None):
         self.pushover_notifier = pushover_notifier
+        self.telegram_notifier = telegram_notifier
         self.weather_api = weather_api
         self.lcd = CharLCD('PCF8574', 0x27)
         self.alert_sent = False
@@ -41,13 +44,20 @@ class TemperatureMonitor:
         time_str = TemperatureMonitor.get_local_time_str()
         date_str = TemperatureMonitor.get_local_date_str()
         message = f"🔥 Hot outside: {temp:.1f}°C\n{date_str} {time_str}"
-        self.pushover_notifier.send_notification(message)
+        self.alert_notifiers(message)
 
     def send_notification_cold(self, temp):
         time_str = TemperatureMonitor.get_local_time_str()
         date_str = TemperatureMonitor.get_local_date_str()
         message = f"❄️ Cold outside: {temp:.1f}°C\n{date_str} {time_str}"
-        self.pushover_notifier.send_notification(message)
+        self.alert_notifiers(message)
+
+    def alert_notifiers(self, message):
+        if self.pushover_notifier is not None:
+            self.pushover_notifier.send_notification(message)
+
+        if self.telegram_notifier is not None:
+            self.telegram_notifier.send_notification(message)
 
     def update_display(self, weather: WeatherData, current_time):
         self.lcd.cursor_pos = (1, 0)
@@ -81,7 +91,7 @@ class TemperatureMonitor:
                 # Update weather every 5 minutes
                 if current_time - self.last_weather_update >= WEATHER_UPDATE_INTERVAL:
                     weather = self.weather_api.get_weather_temp()
-                    if weather:
+                    if weather is not None:
                         self.last_weather_data = weather
                         if weather.temp > THRESHOLD_HOT + TOLERANCE:
                             if not self.alert_sent:
