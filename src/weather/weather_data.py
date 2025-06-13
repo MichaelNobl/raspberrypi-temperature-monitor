@@ -17,8 +17,3 @@ class WeatherData:
             pressure=data.get("pressure"),
             humidity=data.get("humidity")
         )
-
-    def __str__(self):
-        return (f"Temp: {self.temp}°C, Feels Like: {self.feels_like}°C, "
-                f"Min: {self.temp_min}°C, Max: {self.temp_max}°C, "
-                f"Pressure: {self.pressure} hPa, Humidity: {self.humidity}%")

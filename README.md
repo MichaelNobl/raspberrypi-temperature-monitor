@@ -1,12 +1,14 @@
 # Raspberry Pi Temperature Monitor
 
-A simple Raspberry Pi project that fetches local weather data from OpenWeatherMap and displays temperature, feels-like temperature, humidity, and city name on an I2C LCD display. The display cycles through different weather information. It also sends notifications via Pushover when temperatures are critically hot or cold.
+A simple Raspberry Pi project that fetches local weather data from OpenWeatherMap and displays temperature, feels-like
+temperature, humidity, and city name on an I2C LCD display. The display cycles through different weather information. It
+also sends notifications via Pushover and also Telegram when temperatures are critically hot or cold.
 
 ## Features
 
 - Fetches live weather data for a specified city using OpenWeatherMap API
 - Displays temperature, feels-like temperature, humidity, and city name on a 16x2 I2C LCD (PCF8574)
-- Sends push notifications for extreme temperatures using Pushover
+- Sends push notifications for extreme temperatures using Pushover and Telegram Bot
 - Runs continuously on a Raspberry Pi with graceful shutdown handling
 - Uses `.env` file for secure API key and token management
 
@@ -41,8 +43,14 @@ A simple Raspberry Pi project that fetches local weather data from OpenWeatherMa
 
     ```env
     WEATHER_API_KEY=your_openweathermap_api_key
+
+    # Pushover credentials
     PUSHOVER_TOKEN=your_pushover_app_token
     PUSHOVER_USER=your_pushover_user_key
+
+    # Telegram credentials (optional)
+    TELEGRAM_TOKEN=your_telegram_bot_token
+    TELEGRAM_CHAT_ID=your_telegram_chat_id
     ```
 
 4. Enable I2C on your Raspberry Pi if not already done:
@@ -60,8 +68,9 @@ A simple Raspberry Pi project that fetches local weather data from OpenWeatherMa
 
 ## Configuration
 
-- Change city and country in `constants.py`
-- Adjust temperature thresholds and display rotation interval in `constants.py`
+- Change city and country in `weather_constants.py`
+- Adjust temperature thresholds in `weather_constants.py`
+- Adjust display rotation interval in `constants.py`
 
 ## Usage
 
@@ -71,7 +80,12 @@ The display cycles through:
 - Feels-like temperature
 - Humidity
 
-Pushover notifications are sent when temperature exceeds configured hot or cold thresholds.
+Push notifications are sent when temperature exceeds configured hot or cold thresholds.
+Notifications are sent via:
+
+- Pushover (if PUSHOVER_TOKEN and PUSHOVER_USER are set)
+
+- Telegram Bot (if TELEGRAM_TOKEN and TELEGRAM_CHAT_ID are set)
 
 ## License
 
