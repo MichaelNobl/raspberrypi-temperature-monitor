@@ -11,11 +11,14 @@ class WeatherAPI:
             f"q={CITY},{COUNTRY}&units=metric&appid={api_key}"
         )
 
+        self.weather_data = None
+
     def get_weather_temp(self) -> WeatherData | None:
         try:
             response = requests.get(self.api_url, timeout=5)
             data = response.json()
-            return WeatherData.from_dict(data["main"])
+            self.weather_data = WeatherData.from_dict(data["main"])
+            return self.weather_data
         except Exception as e:
             print(f"API error: {e}")
             return None
