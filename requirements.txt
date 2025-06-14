@@ -2,3 +2,4 @@ RPLCD
 requests
 python-dotenv
 smbus2
+python-telegram-bot

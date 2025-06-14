@@ -3,6 +3,7 @@ from typing import Tuple
 
 from dotenv import load_dotenv
 
+from listener.telegram_listener import TelegramListener
 from monitoring.temperature_monitor import TemperatureMonitor
 from notifier.pushover_notifier import PushoverNotifier
 from notifier.telegram_notifier import TelegramNotifier
@@ -14,6 +15,8 @@ def main():
 
     telegram_notifier, pushover_notifier = init_notifiers()
     weather_api = init_weather_api()
+
+    init_telegram_listener(weather_api)
 
     monitor = TemperatureMonitor(
         weather_api=weather_api,
@@ -43,6 +46,19 @@ def init_notifiers() -> Tuple[TelegramNotifier | None, PushoverNotifier | None]:
     )
 
     return telegram_notifier, pushover_notifier
+
+
+def init_telegram_listener(weather_api: WeatherAPI):
+    telegram_token = os.getenv("TELEGRAM_TOKEN")
+    telegram_chat_id = os.getenv("TELEGRAM_CHAT_ID")
+
+    telegram_listener = (
+        TelegramListener(bot_token=telegram_token, chat_id=telegram_chat_id, weather_api=weather_api)
+        if telegram_token and telegram_chat_id else None
+    )
+
+    if telegram_listener is not None:
+        telegram_listener.run()
 
 
 def init_weather_api() -> WeatherAPI:
