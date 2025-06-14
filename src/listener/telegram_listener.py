@@ -1,7 +1,7 @@
 from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
 
-from src.weather.weather_api import WeatherAPI
+from weather.weather_api import WeatherAPI
 
 
 class TelegramListener:
