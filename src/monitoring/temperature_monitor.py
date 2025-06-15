@@ -11,17 +11,19 @@ from monitoring.display_mode import DisplayMode
 
 from weather.weather_constants import CITY, TOLERANCE, THRESHOLD_HOT, THRESHOLD_COLD
 from weather.weather_api import WeatherAPI
+from weather.weather_api_server import WeatherAPIServer
 from weather.weather_data import WeatherData
 
 from notifier.pushover_notifier import PushoverNotifier
 from notifier.telegram_notifier import TelegramNotifier
 
 class TemperatureMonitor:
-    def __init__(self, weather_api: WeatherAPI, telegram_notifier: TelegramNotifier | None,
+    def __init__(self, weather_api: WeatherAPI, weather_api_server : WeatherAPIServer, telegram_notifier: TelegramNotifier | None,
                  pushover_notifier: PushoverNotifier | None):
         self.pushover_notifier = pushover_notifier
         self.telegram_notifier = telegram_notifier
         self.weather_api = weather_api
+        self.weather_api_server = weather_api_server
         self.lcd = CharLCD('PCF8574', 0x27)
         self.alert_sent = False
         self.last_weather_update = 0
@@ -92,6 +94,7 @@ class TemperatureMonitor:
                 # Update weather every 5 minutes
                 if current_time - self.last_weather_update >= WEATHER_UPDATE_INTERVAL:
                     weather = self.weather_api.get_weather_temp()
+                    self.weather_api_server.update_weather(weather)
                     if weather is not None:
                         self.last_weather_data = weather
                         if weather.temp > THRESHOLD_HOT + TOLERANCE:

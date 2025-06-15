@@ -3,11 +3,11 @@ from typing import Tuple
 
 from dotenv import load_dotenv
 
-from listener.telegram_listener import TelegramListener
 from monitoring.temperature_monitor import TemperatureMonitor
 from notifier.pushover_notifier import PushoverNotifier
 from notifier.telegram_notifier import TelegramNotifier
 from weather.weather_api import WeatherAPI
+from weather.weather_api_server import WeatherAPIServer
 
 
 def main():
@@ -16,13 +16,18 @@ def main():
     telegram_notifier, pushover_notifier = init_notifiers()
     weather_api = init_weather_api()
 
-    init_telegram_listener(weather_api)
+    weather_api_server = WeatherAPIServer()
+
+    from threading import Thread
+    flask_thread = Thread(target=weather_api_server.run, daemon=True)
+    flask_thread.start()
 
     monitor = TemperatureMonitor(
         weather_api=weather_api,
         telegram_notifier=telegram_notifier,
-        pushover_notifier=pushover_notifier
-    )
+        pushover_notifier=pushover_notifier,
+        weather_api_server=weather_api_server
+    )  
 
     monitor.run()
 
@@ -46,20 +51,6 @@ def init_notifiers() -> Tuple[TelegramNotifier | None, PushoverNotifier | None]:
     )
 
     return telegram_notifier, pushover_notifier
-
-
-def init_telegram_listener(weather_api: WeatherAPI):
-    telegram_token = os.getenv("TELEGRAM_TOKEN")
-    telegram_chat_id = os.getenv("TELEGRAM_CHAT_ID")
-
-    telegram_listener = (
-        TelegramListener(bot_token=telegram_token, chat_id=telegram_chat_id, weather_api=weather_api)
-        if telegram_token and telegram_chat_id else None
-    )
-
-    if telegram_listener is not None:
-        telegram_listener.run()
-
 
 def init_weather_api() -> WeatherAPI:
     return WeatherAPI(api_key=os.getenv("WEATHER_API_KEY"))

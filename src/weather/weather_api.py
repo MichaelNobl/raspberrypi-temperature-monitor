@@ -2,6 +2,7 @@ import requests
 
 from weather.weather_constants import CITY, COUNTRY
 from weather.weather_data import WeatherData
+from flask import Flask, jsonify
 
 
 class WeatherAPI:
@@ -22,3 +23,5 @@ class WeatherAPI:
         except Exception as e:
             print(f"API error: {e}")
             return None
+
+    
