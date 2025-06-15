@@ -7,7 +7,9 @@ from monitoring.temperature_monitor import TemperatureMonitor
 from notifier.pushover_notifier import PushoverNotifier
 from notifier.telegram_notifier import TelegramNotifier
 from weather.weather_api import WeatherAPI
-from weather.weather_api_server import WeatherAPIServer
+from api.temperature_api_server import TemperatureApiServer
+
+from sensor.dht_sensor import DHT22Reader
 
 
 def main():
@@ -16,17 +18,20 @@ def main():
     telegram_notifier, pushover_notifier = init_notifiers()
     weather_api = init_weather_api()
 
-    weather_api_server = WeatherAPIServer()
+    temperature_api_server = TemperatureApiServer()
 
     from threading import Thread
-    flask_thread = Thread(target=weather_api_server.run, daemon=True)
+    flask_thread = Thread(target=temperature_api_server.run, daemon=True)
     flask_thread.start()
+
+    dht_reader = init_dht_reader()
 
     monitor = TemperatureMonitor(
         weather_api=weather_api,
         telegram_notifier=telegram_notifier,
         pushover_notifier=pushover_notifier,
-        weather_api_server=weather_api_server
+        temperature_api_server=temperature_api_server,
+        dht_reader=dht_reader
     )  
 
     monitor.run()
@@ -54,6 +59,9 @@ def init_notifiers() -> Tuple[TelegramNotifier | None, PushoverNotifier | None]:
 
 def init_weather_api() -> WeatherAPI:
     return WeatherAPI(api_key=os.getenv("WEATHER_API_KEY"))
+
+def init_dht_reader() -> DHT22Reader:
+    return DHT22Reader()
 
 
 def load_environment():

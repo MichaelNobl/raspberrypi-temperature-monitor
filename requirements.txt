@@ -4,3 +4,5 @@ python-dotenv
 smbus2
 python-telegram-bot
 flask
+adafruit-circuitpython-dht
+RPi.GPIO
